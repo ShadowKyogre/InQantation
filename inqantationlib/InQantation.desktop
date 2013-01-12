@@ -1,0 +1,11 @@
+[Desktop Entry]
+Exec=qbiobeat.py
+GenericName[en_US]=Simple Biorhythm Analyzer
+GenericName=Simple Biorhythm Analyzer
+Icon=qbiobeat
+Name[en_US]=InQantation
+Name=InQantation
+StartupNotify=true
+Terminal=false
+Categories=Application;Accessories;Utility;
+Type=Application

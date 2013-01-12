@@ -1,0 +1,7 @@
+APPNAME="InQantation"
+APPVERSION="0.1"
+AUTHOR="ShadowKyogre"
+DESCRIPTION="PyQt application that helps suggest components for spells."
+YEAR="2013"
+PAGE="http://shadowkyogre.github.com/InQantation/"
+EMAIL="shadowkyogre.public@gmail.com"
