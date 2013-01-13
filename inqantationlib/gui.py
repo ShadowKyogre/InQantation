@@ -7,7 +7,7 @@ from . import APPNAME,APPVERSION,AUTHOR,DESCRIPTION,YEAR,PAGE,EMAIL
 from . import core
 from .guiconfig import InQantationConfig
 
-class InQantation:
+class InQantation(QtGui.QMainWindow):
 	def __init__(self, *args, **kwargs):
 		super().__init__()
 		self.setWindowTitle(APPNAME)
@@ -31,11 +31,11 @@ class InQantation:
 		toolbar.addAction(aboutAction)
 
 	def about(self):
-		QtGui.QMessageBox.about (self, "About {}".APPNAME,
+		QtGui.QMessageBox.about (self, "About {}".format(APPNAME),
 		("<center><big><b>{0} {1}</b></big>"
 		"<br />{2}<br />(C) <a href=\"mailto:{3}\">{4}</a> {5}<br />"
 		"<a href=\"{6}\">{0} Homepage</a></center>")\
-		.APPNAME)
+		.format(APPNAME,APPVERSION,DESCRIPTION,EMAIL,AUTHOR,YEAR,PAGE))
 
 	def closeEvent(self,event):
 		#print("Saving configuration...")
