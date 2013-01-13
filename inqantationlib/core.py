@@ -19,8 +19,9 @@ class IngredientsDB:
 		self.con = sqlite.connect(fname)
 		cursor=self.con.cursor()
 		cursor.execute(('create table Ingredients(name TEXT, category TEXT, '
-						'fxid INT, id INT PRIMARY KEY) if not exists Ingredients'))
+						' id INT PRIMARY KEY) if not exists Ingredients'))
 		cursor.execute('create table Effects(id INT PRIMARY KEY, body TEXT) if not exists Effects')
+		cursor.execute('create table HasEffect(ingid INT, fxid INT, PRIMARY KEY (ingid, fxid))')
 		cursor.execute('create table HueEffects(order INT PRIMARY KEY, fxid INT) if not exists HueEffects')
 		cursor.execute('create table LumEffects(order INT PRIMARY KEY, fxid INT) if not exists LumEffects')
 		cursor.execute(('create table FaveColors(hue INT, lum INT, '
