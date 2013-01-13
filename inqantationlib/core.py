@@ -18,10 +18,14 @@ class IngredientsDB:
 	def __init__(self, fname):
 		self.con = sqlite.connect(fname)
 		cursor=self.con.cursor()
-		cursor.execute('create table Ingredients() if not exists Ingredients')
-		cursor.execute('create table HueEffects(int order, text body) if not exists HueEffects')
-		cursor.execute('create table LumEffects(int order, text body) if not exists LumEffects')
-		cursor.execute('create table FaveColors(int hue, int lum, int sat, text name) if not exists FaveColors()')
+		cursor.execute(('create table Ingredients(name TEXT, category TEXT, '
+						'fxid INT, id INT PRIMARY KEY) if not exists Ingredients'))
+		cursor.execute('create table Effects(id INT PRIMARY KEY, body TEXT) if not exists Effects')
+		cursor.execute('create table HueEffects(order INT PRIMARY KEY, fxid INT) if not exists HueEffects')
+		cursor.execute('create table LumEffects(order INT PRIMARY KEY, fxid INT) if not exists LumEffects')
+		cursor.execute(('create table FaveColors(hue INT, lum INT, '
+						'sat INT, name TEXT, PRIMARY KEY (hue, lum, sat))'
+						' if not exists FaveColors'))
 	def lookupRGB(self, r, g, b):
 		return self.lookupHSL(*colorsys.rgb_to_hsv(r,g,b))
 	def lookupHSL(self, h, s, l):
@@ -34,8 +38,8 @@ class IngredientsDB:
 class EnergyColor:
 	HUEFX=["passion","creative","knowledge","healing","occult+","astral+"]
 	LUMFX=["sponge","maim","protection"]
-	def __init__(self, r, g, b, huefxrng=HUEFX, lumfxrng=LUMFX):
-		self.hue,self.luminosity,self.saturation=colorsys.rgb_to_hsv(r,g,b)
+	def __init__(self, h, s, l, huefxrng=HUEFX, lumfxrng=LUMFX):
+		self.hue,self.luminosity,self.saturation=h,s,l
 		self.lumfxrng=lumfxrng
 		self.huefxrng=huefxrng
 	@property
@@ -70,7 +74,7 @@ class EnergyColor:
 		return fx
 	@classmethod
 	def fromRGB(cls, r, g, b, huefxrng=HUEFX, lumfxrng=LUMFX):
-		return cls(r, g, b, huefxrng, lumfxrng)
+		return cls(*colorsys.rgb_to_hsv(r,g,b), huefxrng, lumfxrng)
 	@classmethod
 	def fromHex(cls, hexcode, huefxrng=HUEFX, lumfxrng=LUMFX):
 		#Create an energy color from a hex code (the leading # is optional)
