@@ -9,35 +9,34 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element maxOccurs="unbounded" name="Ingredient" type="Ingredient" minOccurs="0" />
-				<xs:element maxOccurs="unbounded" name="HasEffect" type="HasEffect" minOccurs="0" />
 				<xs:element maxOccurs="unbounded" name="FaveColor" type="FaveColor" minOccurs="0" />
-				<xs:element maxOccurs="unbounded" name="FCHasEffect" type="FCHasEffect" minOccurs="0" />
-				<xs:element maxOccurs="unbounded" name="Effect" type="Effect" minOccurs="1" />
-				<xs:element maxOccurs="unbounded" name="HueEffect" type="HueEffect" minOccurs="1" />
-				<xs:element maxOccurs="unbounded" name="LuminosityEffect" type="LuminosityEffect" minOccurs="1" />
+				<xs:element maxOccurs="unbounded" name="Effect" type="Effect" />
+				<xs:element maxOccurs="unbounded" name="HueEffect" type="HueEffect" />
+				<xs:element maxOccurs="unbounded" name="LuminosityEffect" type="LuminosityEffect" />
+				<xs:element name="Spellbook" type="Spellbook" />
 			</xs:sequence>
 		</xs:complexType>
 
-		<!-- Key Declarations -->
+		<!-- Recipe Component Key Declarations -->
 		<xs:unique name="IngredientID">
 			<xs:selector xpath="Ingredient" />
-			<xs:field xpath="id" />
+			<xs:field xpath="igid" />
 		</xs:unique>
 		<xs:unique name="EffectID">
 			<xs:selector xpath="Effect" />
-			<xs:field xpath="id" />
+			<xs:field xpath="@fxid" />
 		</xs:unique>
 		<xs:unique name="FaveColorDesc">
-			<xs:selector xpath="FaveColor" />
+			<xs:selector xpath="FaveColor/color" />
 			<xs:field xpath="hue" />
 			<xs:field xpath="saturation" />
 			<xs:field xpath="luminosity" />
 		</xs:unique>
 
-		<!-- Key Reference Declarations -->
+		<!-- Recipe Component Key Reference Declarations -->
 		<xs:keyref refer="EffectID" name="EffectIDRef">
-			<xs:selector xpath="HasEffect"></xs:selector>
-			<xs:field xpath="fxid"></xs:field>
+			<xs:selector xpath="Ingredient/effect"></xs:selector>
+			<xs:field xpath="@fxid"></xs:field>
 		</xs:keyref>
 		<xs:keyref refer="IngredientID" name="IngredientIDRef">
 			<xs:selector xpath="HasEffect"></xs:selector>
@@ -52,14 +51,36 @@
 			<xs:field xpath="@fxid"></xs:field>
 		</xs:keyref>
 		<xs:keyref refer="EffectID" name="EffectIDRef-fcfx">
-			<xs:selector xpath="FCHasEffect"></xs:selector>
-			<xs:field xpath="fxid"></xs:field>
+			<xs:selector xpath="FaveColor/effect"></xs:selector>
+			<xs:field xpath="@fxid"></xs:field>
 		</xs:keyref>
+
+		<!-- Recipe Key Declarations -->
+		<xs:unique name="RecipeID">
+			<xs:selector xpath="Spellbook/Recipe" />
+			<xs:field xpath="@rpid" />
+		</xs:unique>
+		<xs:unique name="StepID">
+			<xs:selector xpath="Spellbook/Step" />
+			<xs:field xpath="@stid" />
+		</xs:unique>
+
+		<!-- Recipe Component Key Reference Declarations -->
+		<xs:keyref refer="StepID" name="StepIDRef">
+			<xs:selector xpath="Spellbook/Recipe/step"></xs:selector>
+			<xs:field xpath="@stid"></xs:field>
+		</xs:keyref>
+
+		<!-- Step referential integrity declarations -->
 		<xs:keyref refer="FaveColorDesc" name="FaveColorDescRef">
-			<xs:selector xpath="FCHasEffect"></xs:selector>
+			<xs:selector xpath="Spellbook/Step/uses/color"></xs:selector>
 			<xs:field xpath="hue" />
 			<xs:field xpath="saturation" />
 			<xs:field xpath="luminosity" />
+		</xs:keyref>
+		<xs:keyref refer="IngredientID" name="IngredientIDRef2">
+			<xs:selector xpath="Spellbook/Step/uses"></xs:selector>
+			<xs:field xpath="igid"></xs:field>
 		</xs:keyref>
 	</xs:element>
 
@@ -70,40 +91,44 @@
 	    </xs:restriction>
 	</xs:simpleType>
 
-	<!-- Recipe Components -->
-	<xs:complexType name="Ingredient">
-		<xs:sequence>
-				<xs:element name="id" type="xs:int" />
-				<xs:element name="label" type="xs:string" />
-				<xs:element name="category" type="xs:string" minOccurs="0"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="Effect">
-			<xs:sequence>
-				<xs:element name="id" type="xs:int" />
-				<xs:element name="effectkw" type="xs:string" />
-			</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="FaveColor">
-		<xs:sequence>
-		<xs:element name="hue" type="percent" />
-		<xs:element name="saturation" type="percent" />
-		<xs:element name="luminosity" type="percent" />
-		<xs:element name="label" type="xs:string" />
-		</xs:sequence>
-		<xs:attribute name="noCalculate" type="xs:boolean"/>
-	</xs:complexType>
-	<xs:complexType name="HasEffect">
-		<xs:attribute name="igid" type="xs:int" />
-		<xs:attribute name="fxid" type="xs:int" />
-	</xs:complexType>
-	<xs:complexType name="FCHasEffect">
+	<xs:complexType name="Color">
 		<xs:sequence>
 			<xs:element name="hue" type="percent" />
 			<xs:element name="saturation" type="percent" />
 			<xs:element name="luminosity" type="percent" />
-			<xs:element name="fxid" type="xs:int" />
 		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Recipe Components -->
+	<xs:complexType name="Ingredient">
+		<xs:sequence>
+				<xs:element name="igid" type="xs:int" />
+				<xs:element name="label" type="xs:string" />
+				<xs:element name="category" type="xs:string" minOccurs="0"/>
+				<xs:element name="effect" maxOccurs="unbounded">
+					<xs:complexType>
+						 <xs:attribute name="fxid" type="xs:int" />
+					</xs:complexType>
+				</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Effect">
+			<xs:sequence>
+				<xs:element name="effectkw" type="xs:string" />
+			</xs:sequence>
+			<xs:attribute name="fxid" type="xs:int" />
+	</xs:complexType>
+	<xs:complexType name="FaveColor">
+		<xs:sequence>
+			<xs:element name="color" type="Color" />
+			<xs:element name="label" type="xs:string" />
+			<xs:element name="effect" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					 <xs:attribute name="fxid" type="xs:int" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="noCalculate" type="xs:boolean"/>
 	</xs:complexType>
 	<xs:complexType name="HueEffect">
 		<xs:attribute name="order" type="xs:int" />
@@ -112,5 +137,38 @@
 	<xs:complexType name="LuminosityEffect">
 		<xs:attribute name="order" type="xs:int" />
 		<xs:attribute name="fxid" type="xs:int" />
+	</xs:complexType>
+
+	<xs:complexType name="Spellbook">
+		<xs:sequence>
+			<xs:element name="Recipe" type="Recipe" minOccurs="0" />
+			<xs:element name="Step" type="Step" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Recipe Components -->
+	<xs:complexType name="Recipe">
+		<xs:sequence>
+			<xs:element name="label" type="xs:string" />
+			<xs:element name="step" maxOccurs="unbounded">
+				<xs:complexType>
+					 <xs:attribute name="stid" type="xs:int" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="rpid" type="xs:int" />
+	</xs:complexType>
+	<xs:complexType name="Step">
+		<xs:sequence>
+			<xs:element name="details" type="xs:string" />
+			<xs:element name="uses" type="Uses" />
+		</xs:sequence>
+		<xs:attribute name="stid" type="xs:int" />
+	</xs:complexType>
+	<xs:complexType name="Uses">
+		<xs:choice>
+			<xs:element name="color" type="Color" />
+			<xs:element name="igid" type="xs:int" />
+		</xs:choice>
 	</xs:complexType>
 </xs:schema>

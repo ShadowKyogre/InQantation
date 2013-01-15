@@ -1,55 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Encyclopedia>
 	<Ingredient>
-		<id>0</id>
+		<igid>0</igid>
 		<label>Algiz</label>
 		<category>rune</category>
+		<effect fxid="8" />
 	</Ingredient>
-	<HasEffect igid="0" fxid="8" />
 	<FaveColor noCalculate="true">
-		<hue>0.602</hue>
-		<saturation>1</saturation>
-		<luminosity>1</luminosity>
+		<color>
+			<hue>0.602</hue>
+			<saturation>1</saturation>
+			<luminosity>1</luminosity>
+		</color>
 		<label>Daemonic Blue</label>
+		<effect fxid="5" />
 	</FaveColor>
-	<!--
-	<FCHasEffect>
-	</FCHasEffect> 
-	-->
-	<Effect>
-		<id>0</id>
+	<Effect fxid="0">
 		<effectkw>passion</effectkw>
 	</Effect>
-	<Effect>
-		<id>1</id>
+	<Effect fxid="1">
 		<effectkw>creative</effectkw>
 	</Effect>
-	<Effect>
-		<id>2</id>
+	<Effect fxid="2">
 		<effectkw>knowledge</effectkw>
 	</Effect>
-	<Effect>
-		<id>3</id>
+	<Effect fxid="3">
 		<effectkw>healing</effectkw>
 	</Effect>
-	<Effect>
-		<id>4</id>
+	<Effect fxid="4">
 		<effectkw>occult+</effectkw>
 	</Effect>
-	<Effect>
-		<id>5</id>
+	<Effect fxid="5">
 		<effectkw>astral+</effectkw>
 	</Effect>
-	<Effect>
-		<id>6</id>
+	<Effect fxid="6">
 		<effectkw>harm</effectkw>
 	</Effect>
-	<Effect>
-		<id>7</id>
+	<Effect fxid="7">
 		<effectkw>sponge</effectkw>
 	</Effect>
-	<Effect>
-		<id>8</id>
+	<Effect fxid="8">
 		<effectkw>protection</effectkw>
 	</Effect>
 	<HueEffect order="0" fxid="0" />
@@ -61,4 +51,20 @@
 	<LuminosityEffect order="0" fxid="7" />
 	<LuminosityEffect order="1" fxid="6" />
 	<LuminosityEffect order="2" fxid="8" />
+	<Spellbook>
+		<Recipe rpid="0">
+			<label>Blah</label>
+			<step stid="0" />
+		</Recipe>
+		<Step stid="0">
+			<details>Programming energy</details>
+			<uses>
+				<color>
+					<hue>0.602</hue>
+					<saturation>1</saturation>
+					<luminosity>1</luminosity>
+				</color>
+			</uses>
+		</Step>
+	</Spellbook>
 </Encyclopedia>
