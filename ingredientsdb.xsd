@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"  elementFormDefault="qualified">
+	<xs:annotation>
+		<xs:documentation xml:lang="en">Spell Ingredients DB,</xs:documentation>
+	</xs:annotation>
+
+	<!-- Container Elements -->
+	<xs:element name="Encyclopedia">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element maxOccurs="unbounded" name="Ingredient" type="Ingredient" minOccurs="0" />
+				<xs:element maxOccurs="unbounded" name="HasEffect" type="HasEffect" minOccurs="0" />
+				<xs:element maxOccurs="unbounded" name="FaveColor" type="FaveColor" minOccurs="0" />
+				<xs:element maxOccurs="unbounded" name="FCHasEffect" type="FCHasEffect" minOccurs="0" />
+				<xs:element maxOccurs="unbounded" name="Effect" type="Effect" minOccurs="1" />
+				<xs:element maxOccurs="unbounded" name="HueEffect" type="HueEffect" minOccurs="1" />
+				<xs:element maxOccurs="unbounded" name="LuminosityEffect" type="LuminosityEffect" minOccurs="1" />
+			</xs:sequence>
+		</xs:complexType>
+
+		<!-- Key Declarations -->
+		<xs:unique name="IngredientID">
+			<xs:selector xpath="Ingredient" />
+			<xs:field xpath="id" />
+		</xs:unique>
+		<xs:unique name="EffectID">
+			<xs:selector xpath="Effect" />
+			<xs:field xpath="id" />
+		</xs:unique>
+		<xs:unique name="FaveColorDesc">
+			<xs:selector xpath="FaveColor" />
+			<xs:field xpath="hue" />
+			<xs:field xpath="saturation" />
+			<xs:field xpath="luminosity" />
+		</xs:unique>
+
+		<!-- Key Reference Declarations -->
+		<xs:keyref refer="EffectID" name="EffectIDRef">
+			<xs:selector xpath="HasEffect"></xs:selector>
+			<xs:field xpath="fxid"></xs:field>
+		</xs:keyref>
+		<xs:keyref refer="IngredientID" name="IngredientIDRef">
+			<xs:selector xpath="HasEffect"></xs:selector>
+			<xs:field xpath="igid"></xs:field>
+		</xs:keyref>
+		<xs:keyref refer="EffectID" name="EffectIDRef-hfx">
+			<xs:selector xpath="HueEffect"></xs:selector>
+			<xs:field xpath="@fxid"></xs:field>
+		</xs:keyref>
+		<xs:keyref refer="EffectID" name="EffectIDRef-lfx">
+			<xs:selector xpath="LuminosityEffect"></xs:selector>
+			<xs:field xpath="@fxid"></xs:field>
+		</xs:keyref>
+		<xs:keyref refer="EffectID" name="EffectIDRef-fcfx">
+			<xs:selector xpath="FCHasEffect"></xs:selector>
+			<xs:field xpath="fxid"></xs:field>
+		</xs:keyref>
+		<xs:keyref refer="FaveColorDesc" name="FaveColorDescRef">
+			<xs:selector xpath="FCHasEffect"></xs:selector>
+			<xs:field xpath="hue" />
+			<xs:field xpath="saturation" />
+			<xs:field xpath="luminosity" />
+		</xs:keyref>
+	</xs:element>
+
+	<xs:simpleType name="percent">
+    	<xs:restriction base="xs:float">
+	      <xs:minInclusive value="0"/>
+    	  <xs:maxInclusive value="1"/>
+	    </xs:restriction>
+	</xs:simpleType>
+
+	<!-- Recipe Components -->
+	<xs:complexType name="Ingredient">
+		<xs:sequence>
+				<xs:element name="id" type="xs:int" />
+				<xs:element name="label" type="xs:string" />
+				<xs:element name="category" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Effect">
+			<xs:sequence>
+				<xs:element name="id" type="xs:int" />
+				<xs:element name="effectkw" type="xs:string" />
+			</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FaveColor">
+		<xs:sequence>
+		<xs:element name="hue" type="percent" />
+		<xs:element name="saturation" type="percent" />
+		<xs:element name="luminosity" type="percent" />
+		<xs:element name="label" type="xs:string" />
+		</xs:sequence>
+		<xs:attribute name="noCalculate" type="xs:boolean"/>
+	</xs:complexType>
+	<xs:complexType name="HasEffect">
+		<xs:attribute name="igid" type="xs:int" />
+		<xs:attribute name="fxid" type="xs:int" />
+	</xs:complexType>
+	<xs:complexType name="FCHasEffect">
+		<xs:sequence>
+			<xs:element name="hue" type="percent" />
+			<xs:element name="saturation" type="percent" />
+			<xs:element name="luminosity" type="percent" />
+			<xs:element name="fxid" type="xs:int" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HueEffect">
+		<xs:attribute name="order" type="xs:int" />
+		<xs:attribute name="fxid" type="xs:int" />
+	</xs:complexType>
+	<xs:complexType name="LuminosityEffect">
+		<xs:attribute name="order" type="xs:int" />
+		<xs:attribute name="fxid" type="xs:int" />
+	</xs:complexType>
+</xs:schema>

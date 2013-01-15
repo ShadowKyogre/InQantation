@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Encyclopedia>
+	<Ingredient>
+		<id>0</id>
+		<label>Algiz</label>
+		<category>rune</category>
+	</Ingredient>
+	<HasEffect igid="0" fxid="8" />
+	<FaveColor noCalculate="true">
+		<hue>0.602</hue>
+		<saturation>1</saturation>
+		<luminosity>1</luminosity>
+		<label>Daemonic Blue</label>
+	</FaveColor>
+	<!--
+	<FCHasEffect>
+	</FCHasEffect> 
+	-->
+	<Effect>
+		<id>0</id>
+		<effectkw>passion</effectkw>
+	</Effect>
+	<Effect>
+		<id>1</id>
+		<effectkw>creative</effectkw>
+	</Effect>
+	<Effect>
+		<id>2</id>
+		<effectkw>knowledge</effectkw>
+	</Effect>
+	<Effect>
+		<id>3</id>
+		<effectkw>healing</effectkw>
+	</Effect>
+	<Effect>
+		<id>4</id>
+		<effectkw>occult+</effectkw>
+	</Effect>
+	<Effect>
+		<id>5</id>
+		<effectkw>astral+</effectkw>
+	</Effect>
+	<Effect>
+		<id>6</id>
+		<effectkw>harm</effectkw>
+	</Effect>
+	<Effect>
+		<id>7</id>
+		<effectkw>sponge</effectkw>
+	</Effect>
+	<Effect>
+		<id>8</id>
+		<effectkw>protection</effectkw>
+	</Effect>
+	<HueEffect order="0" fxid="0" />
+	<HueEffect order="1" fxid="1" />
+	<HueEffect order="2" fxid="2" />
+	<HueEffect order="3" fxid="3" />
+	<HueEffect order="4" fxid="4" />
+	<HueEffect order="5" fxid="5" />
+	<LuminosityEffect order="0" fxid="7" />
+	<LuminosityEffect order="1" fxid="6" />
+	<LuminosityEffect order="2" fxid="8" />
+</Encyclopedia>
