@@ -1,7 +1,7 @@
 import colorsys
 import sys
 import re
-import sqlite
+from lxml import objectify
 
 HEXCODEFORMAT=re.compile(r'#?([0-9a-f]{3}|[0-9a-f]{6})',re.I)
 
@@ -15,18 +15,6 @@ def html2rgb(string):
 	return r,g,b
 
 class IngredientsDB:
-	def __init__(self, fname):
-		self.con = sqlite.connect(fname)
-		cursor=self.con.cursor()
-		cursor.execute(('create table Ingredients(name TEXT, category TEXT, '
-						' id INT PRIMARY KEY) if not exists Ingredients'))
-		cursor.execute('create table Effects(id INT PRIMARY KEY, body TEXT) if not exists Effects')
-		cursor.execute('create table HasEffect(ingid INT, fxid INT, PRIMARY KEY (ingid, fxid))')
-		cursor.execute('create table HueEffects(order INT PRIMARY KEY, fxid INT) if not exists HueEffects')
-		cursor.execute('create table LumEffects(order INT PRIMARY KEY, fxid INT) if not exists LumEffects')
-		cursor.execute(('create table FaveColors(hue INT, lum INT, '
-						'sat INT, name TEXT, PRIMARY KEY (hue, lum, sat))'
-						' if not exists FaveColors'))
 	def lookupRGB(self, r, g, b):
 		return self.lookupHSL(*colorsys.rgb_to_hsv(r,g,b))
 	def lookupHSL(self, h, s, l):
@@ -75,7 +63,7 @@ class EnergyColor:
 		return fx
 	@classmethod
 	def fromRGB(cls, r, g, b, huefxrng=HUEFX, lumfxrng=LUMFX):
-		return cls(*colorsys.rgb_to_hsv(r,g,b), huefxrng, lumfxrng)
+		return cls(*colorsys.rgb_to_hsv(r,g,b), huefxrng=huefxrng, lumfxrng=lumfxrng)
 	@classmethod
 	def fromHex(cls, hexcode, huefxrng=HUEFX, lumfxrng=LUMFX):
 		#Create an energy color from a hex code (the leading # is optional)

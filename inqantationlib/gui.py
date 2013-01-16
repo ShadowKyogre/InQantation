@@ -4,13 +4,14 @@ import os
 import datetime
 
 from . import APPNAME,APPVERSION,AUTHOR,DESCRIPTION,YEAR,PAGE,EMAIL
-from . import core
+#from . import core
 from .guiconfig import InQantationConfig
 
 class InQantation(QtGui.QMainWindow):
 	def __init__(self, *args, **kwargs):
 		super().__init__()
 		self.setWindowTitle(APPNAME)
+		self.undoStack=QtGui.QUndoStack(self)
 
 		exitAction = QtGui.QAction(QtGui.QIcon.fromTheme('application-exit'), 'Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
@@ -29,6 +30,14 @@ class InQantation(QtGui.QMainWindow):
 		toolbar.addAction(exitAction)
 		toolbar.addAction(saveAction)
 		toolbar.addAction(aboutAction)
+
+		tabs = QtGui.QTabWidget(self)
+		tabs.addTab(QtGui.QListView(self), "Energy Colors")
+		tabs.addTab(QtGui.QListView(self), "Ingredients")
+		tabs.addTab(QtGui.QListView(self), "Effects")
+		tabs.addTab(QtGui.QListView(self), "Steps")
+		tabs.addTab(QtGui.QListView(self), "Recipes")
+		self.setCentralWidget(tabs)
 
 	def about(self):
 		QtGui.QMessageBox.about (self, "About {}".format(APPNAME),

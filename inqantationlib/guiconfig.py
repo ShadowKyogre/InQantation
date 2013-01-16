@@ -1,6 +1,7 @@
 from PyQt4 import QtGui,QtCore
 
-from . import APPNAME,APPVERSION,AUTHOR,DESCRIPTION,YEAR,PAGE
+from . import APPNAME,AUTHOR
+from .core import EnergyColor, IngredientsDB
 
 class InQantationConfig:
 
