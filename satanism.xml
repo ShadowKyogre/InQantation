@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Encyclopedia>
-	<Ingredient>
-		<igid>0</igid>
+	<Ingredient igid="0">
 		<label>Algiz</label>
 		<category>rune</category>
 		<effect fxid="8" />
@@ -55,6 +54,7 @@
 		<Recipe rpid="0">
 			<label>Blah</label>
 			<step stid="0" />
+			<step stid="1" />
 		</Recipe>
 		<Step stid="0">
 			<details>Programming energy</details>
@@ -64,6 +64,12 @@
 					<saturation>1</saturation>
 					<luminosity>1</luminosity>
 				</color>
+			</uses>
+		</Step>
+		<Step stid="1">
+			<details>Programming rune</details>
+			<uses>
+				<ingredient igid="0" />
 			</uses>
 		</Step>
 	</Spellbook>

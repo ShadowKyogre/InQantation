@@ -20,7 +20,7 @@
 		<!-- Recipe Component Key Declarations -->
 		<xs:unique name="IngredientID">
 			<xs:selector xpath="Ingredient" />
-			<xs:field xpath="igid" />
+			<xs:field xpath="@igid" />
 		</xs:unique>
 		<xs:unique name="EffectID">
 			<xs:selector xpath="Effect" />
@@ -37,10 +37,6 @@
 		<xs:keyref refer="EffectID" name="EffectIDRef">
 			<xs:selector xpath="Ingredient/effect"></xs:selector>
 			<xs:field xpath="@fxid"></xs:field>
-		</xs:keyref>
-		<xs:keyref refer="IngredientID" name="IngredientIDRef">
-			<xs:selector xpath="HasEffect"></xs:selector>
-			<xs:field xpath="igid"></xs:field>
 		</xs:keyref>
 		<xs:keyref refer="EffectID" name="EffectIDRef-hfx">
 			<xs:selector xpath="HueEffect"></xs:selector>
@@ -78,9 +74,9 @@
 			<xs:field xpath="saturation" />
 			<xs:field xpath="luminosity" />
 		</xs:keyref>
-		<xs:keyref refer="IngredientID" name="IngredientIDRef2">
-			<xs:selector xpath="Spellbook/Step/uses"></xs:selector>
-			<xs:field xpath="igid"></xs:field>
+		<xs:keyref refer="IngredientID" name="IngredientIDRef">
+			<xs:selector xpath="Spellbook/Step/uses/ingredient"></xs:selector>
+			<xs:field xpath="@igid"></xs:field>
 		</xs:keyref>
 	</xs:element>
 
@@ -102,7 +98,6 @@
 	<!-- Recipe Components -->
 	<xs:complexType name="Ingredient">
 		<xs:sequence>
-				<xs:element name="igid" type="xs:int" />
 				<xs:element name="label" type="xs:string" />
 				<xs:element name="category" type="xs:string" minOccurs="0"/>
 				<xs:element name="effect" maxOccurs="unbounded">
@@ -111,6 +106,7 @@
 					</xs:complexType>
 				</xs:element>
 		</xs:sequence>
+		<xs:attribute name="igid" type="xs:int" />
 	</xs:complexType>
 	<xs:complexType name="Effect">
 			<xs:sequence>
@@ -141,8 +137,8 @@
 
 	<xs:complexType name="Spellbook">
 		<xs:sequence>
-			<xs:element name="Recipe" type="Recipe" minOccurs="0" />
-			<xs:element name="Step" type="Step" />
+			<xs:element maxOccurs="unbounded" name="Recipe" type="Recipe" minOccurs="0" />
+			<xs:element maxOccurs="unbounded" name="Step" type="Step" minOccurs="0" />
 		</xs:sequence>
 	</xs:complexType>
 
@@ -168,7 +164,11 @@
 	<xs:complexType name="Uses">
 		<xs:choice>
 			<xs:element name="color" type="Color" />
-			<xs:element name="igid" type="xs:int" />
+			<xs:element name="ingredient">
+				<xs:complexType>
+					<xs:attribute name="igid" type="xs:int" />
+				</xs:complexType>
+			</xs:element>
 		</xs:choice>
 	</xs:complexType>
 </xs:schema>

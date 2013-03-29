@@ -1,7 +1,6 @@
 import colorsys
 import sys
 import re
-from lxml import objectify
 
 HEXCODEFORMAT=re.compile(r'#?([0-9a-f]{3}|[0-9a-f]{6})',re.I)
 
@@ -13,16 +12,6 @@ def html2rgb(string):
 	g=int(string[2:4],16)/255
 	b=int(string[4:],16)/255
 	return r,g,b
-
-class IngredientsDB:
-	def lookupRGB(self, r, g, b):
-		return self.lookupHSL(*colorsys.rgb_to_hsv(r,g,b))
-	def lookupHSL(self, h, s, l):
-		pass
-	def byCategory(self, fx):
-		pass
-	def byEffects(self, fx):
-		pass
 
 class EnergyColor:
 	HUEFX=["passion","creative","knowledge","healing","occult+","astral+"]
