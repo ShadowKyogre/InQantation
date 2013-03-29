@@ -5,6 +5,11 @@
 		<category>rune</category>
 		<effect fxid="8" />
 	</Ingredient>
+	<Ingredient igid="1">
+		<label>Laguz</label>
+		<category>rune</category>
+		<effect fxid="2" />
+	</Ingredient>
 	<FaveColor noCalculate="true">
 		<color>
 			<hue>0.602</hue>
@@ -12,7 +17,42 @@
 			<luminosity>1</luminosity>
 		</color>
 		<label>Daemonic Blue</label>
+		<effect fxid="4" />
 		<effect fxid="5" />
+	</FaveColor>
+	<FaveColor>
+		<color>
+			<hue>0</hue>
+			<saturation>1</saturation>
+			<luminosity>1</luminosity>
+		</color>
+		<label>Red</label>
+	</FaveColor>
+	<FaveColor>
+		<color>
+			<hue>0</hue>
+			<saturation>0</saturation>
+			<luminosity>1</luminosity>
+		</color>
+		<label>White</label>
+	</FaveColor>
+	<FaveColor noCalculate="true">
+		<color>
+			<hue>0.122</hue>
+			<saturation>0</saturation>
+			<luminosity>1</luminosity>
+		</color>
+		<label>White Gold</label>
+		<effect fxid="3" />
+		<effect fxid="8" />
+	</FaveColor>
+	<FaveColor>
+		<color>
+			<hue>0</hue>
+			<saturation>0</saturation>
+			<luminosity>0.5</luminosity>
+		</color>
+		<label>Gray</label>
 	</FaveColor>
 	<Effect fxid="0">
 		<effectkw>passion</effectkw>
@@ -50,27 +90,29 @@
 	<LuminosityEffect order="0" fxid="7" />
 	<LuminosityEffect order="1" fxid="6" />
 	<LuminosityEffect order="2" fxid="8" />
-	<Spellbook>
-		<Recipe rpid="0">
-			<label>Blah</label>
-			<step stid="0" />
-			<step stid="1" />
-		</Recipe>
-		<Step stid="0">
-			<details>Programming energy</details>
-			<uses>
-				<color>
-					<hue>0.602</hue>
-					<saturation>1</saturation>
-					<luminosity>1</luminosity>
-				</color>
-			</uses>
-		</Step>
-		<Step stid="1">
-			<details>Programming rune</details>
-			<uses>
-				<ingredient igid="0" />
-			</uses>
-		</Step>
-	</Spellbook>
+	<Recipe rpid="0">
+		<label>Blah</label>
+		<step stid="0" />
+		<step stid="1" />
+	</Recipe>
+	<Recipe rpid="1">
+		<label>Blahbal</label>
+		<step stid="2" />
+	</Recipe>
+	<Step stid="0">
+		<details>Programming energy</details>
+		<color>
+			<hue>0.602</hue>
+			<saturation>1</saturation>
+			<luminosity>1</luminosity>
+		</color>
+	</Step>
+	<Step stid="1">
+		<details>Programming rune</details>
+		<ingredient igid="0" />
+	</Step>
+	<Step stid="2">
+		<details>Programming rune 2</details>
+		<ingredient igid="1" />
+	</Step>
 </Encyclopedia>

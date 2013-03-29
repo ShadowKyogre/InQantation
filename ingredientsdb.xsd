@@ -13,7 +13,8 @@
 				<xs:element maxOccurs="unbounded" name="Effect" type="Effect" />
 				<xs:element maxOccurs="unbounded" name="HueEffect" type="HueEffect" />
 				<xs:element maxOccurs="unbounded" name="LuminosityEffect" type="LuminosityEffect" />
-				<xs:element name="Spellbook" type="Spellbook" />
+				<xs:element maxOccurs="unbounded" name="Recipe" type="Recipe" minOccurs="0" />
+				<xs:element maxOccurs="unbounded" name="Step" type="Step" minOccurs="0" />
 			</xs:sequence>
 		</xs:complexType>
 
@@ -53,29 +54,29 @@
 
 		<!-- Recipe Key Declarations -->
 		<xs:unique name="RecipeID">
-			<xs:selector xpath="Spellbook/Recipe" />
+			<xs:selector xpath="Recipe" />
 			<xs:field xpath="@rpid" />
 		</xs:unique>
 		<xs:unique name="StepID">
-			<xs:selector xpath="Spellbook/Step" />
+			<xs:selector xpath="Step" />
 			<xs:field xpath="@stid" />
 		</xs:unique>
 
 		<!-- Recipe Component Key Reference Declarations -->
 		<xs:keyref refer="StepID" name="StepIDRef">
-			<xs:selector xpath="Spellbook/Recipe/step"></xs:selector>
+			<xs:selector xpath="Recipe/step"></xs:selector>
 			<xs:field xpath="@stid"></xs:field>
 		</xs:keyref>
 
 		<!-- Step referential integrity declarations -->
 		<xs:keyref refer="FaveColorDesc" name="FaveColorDescRef">
-			<xs:selector xpath="Spellbook/Step/uses/color"></xs:selector>
+			<xs:selector xpath="Step/color"></xs:selector>
 			<xs:field xpath="hue" />
 			<xs:field xpath="saturation" />
 			<xs:field xpath="luminosity" />
 		</xs:keyref>
 		<xs:keyref refer="IngredientID" name="IngredientIDRef">
-			<xs:selector xpath="Spellbook/Step/uses/ingredient"></xs:selector>
+			<xs:selector xpath="Step/ingredient"></xs:selector>
 			<xs:field xpath="@igid"></xs:field>
 		</xs:keyref>
 	</xs:element>
@@ -102,17 +103,17 @@
 				<xs:element name="category" type="xs:string" minOccurs="0"/>
 				<xs:element name="effect" maxOccurs="unbounded">
 					<xs:complexType>
-						 <xs:attribute name="fxid" type="xs:int" />
+						 <xs:attribute name="fxid" type="xs:nonNegativeInteger" />
 					</xs:complexType>
 				</xs:element>
 		</xs:sequence>
-		<xs:attribute name="igid" type="xs:int" />
+		<xs:attribute name="igid" type="xs:nonNegativeInteger" />
 	</xs:complexType>
 	<xs:complexType name="Effect">
 			<xs:sequence>
 				<xs:element name="effectkw" type="xs:string" />
 			</xs:sequence>
-			<xs:attribute name="fxid" type="xs:int" />
+			<xs:attribute name="fxid" type="xs:nonNegativeInteger" />
 	</xs:complexType>
 	<xs:complexType name="FaveColor">
 		<xs:sequence>
@@ -120,26 +121,19 @@
 			<xs:element name="label" type="xs:string" />
 			<xs:element name="effect" minOccurs="0" maxOccurs="unbounded">
 				<xs:complexType>
-					 <xs:attribute name="fxid" type="xs:int" />
+					 <xs:attribute name="fxid" type="xs:nonNegativeInteger" />
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="noCalculate" type="xs:boolean"/>
 	</xs:complexType>
 	<xs:complexType name="HueEffect">
-		<xs:attribute name="order" type="xs:int" />
-		<xs:attribute name="fxid" type="xs:int" />
+		<xs:attribute name="order" type="xs:nonNegativeInteger" />
+		<xs:attribute name="fxid" type="xs:nonNegativeInteger" />
 	</xs:complexType>
 	<xs:complexType name="LuminosityEffect">
-		<xs:attribute name="order" type="xs:int" />
-		<xs:attribute name="fxid" type="xs:int" />
-	</xs:complexType>
-
-	<xs:complexType name="Spellbook">
-		<xs:sequence>
-			<xs:element maxOccurs="unbounded" name="Recipe" type="Recipe" minOccurs="0" />
-			<xs:element maxOccurs="unbounded" name="Step" type="Step" minOccurs="0" />
-		</xs:sequence>
+		<xs:attribute name="order" type="xs:nonNegativeInteger" />
+		<xs:attribute name="fxid" type="xs:nonNegativeInteger" />
 	</xs:complexType>
 
 	<!-- Recipe Components -->
@@ -148,27 +142,24 @@
 			<xs:element name="label" type="xs:string" />
 			<xs:element name="step" maxOccurs="unbounded">
 				<xs:complexType>
-					 <xs:attribute name="stid" type="xs:int" />
+					 <xs:attribute name="stid" type="xs:nonNegativeInteger" />
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
-		<xs:attribute name="rpid" type="xs:int" />
+		<xs:attribute name="rpid" type="xs:nonNegativeInteger" />
 	</xs:complexType>
 	<xs:complexType name="Step">
 		<xs:sequence>
 			<xs:element name="details" type="xs:string" />
-			<xs:element name="uses" type="Uses" />
+			<xs:choice>
+				<xs:element name="color" type="Color" />
+				<xs:element name="ingredient">
+					<xs:complexType>
+						<xs:attribute name="igid" type="xs:nonNegativeInteger" />
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
 		</xs:sequence>
-		<xs:attribute name="stid" type="xs:int" />
-	</xs:complexType>
-	<xs:complexType name="Uses">
-		<xs:choice>
-			<xs:element name="color" type="Color" />
-			<xs:element name="ingredient">
-				<xs:complexType>
-					<xs:attribute name="igid" type="xs:int" />
-				</xs:complexType>
-			</xs:element>
-		</xs:choice>
+		<xs:attribute name="stid" type="xs:nonNegativeInteger" />
 	</xs:complexType>
 </xs:schema>

@@ -1,21 +1,27 @@
 from lxml import etree,objectify
 
 
-class Spellbook(objectify.ObjectifiedElement):
-	def usedColors(self, rpid):
-		#//FaveColor
-		pass
-	def usedIngredients(self, rpid):
-		#//Ingredient
-		pass
-	def effectSummary(self, rpid):
+class Recipe(objectify.ObjectifiedElement):
+	def usedColors(self):
+		#//FaveColor[color=./color] <- for each step
+		r=[]
+		for i in self.xpath('//Step[@stid=//Recipe[@rpid={}]/step/@stid and color]'.format(self.attrib['rpid'])):
+			r.append(i.usedColor()[0])
+		#return self.xpath('//FaveColor[color=//Step[contains(@stid,./step/@stid)]/color]')
+		return r
+	def usedIngredients(self):
+		#//Ingredient[@igid=//Step[@stid=./@stid]/ingredient/@igid] <- for each ingredient
+		return self.xpath(('//Ingredient[@igid=//Step[@stid='
+						'//Recipe[@rpid={}]/step/@stid]'
+						'/ingredient/@igid]').format(self.attrib['rpid']))
+	'''
+	def effectSummary(self):
 		#self.usedIngredients+self.usedColors
 		pass
-	def inRecipes(self, stid):
-		#//Recipes[step/@stid={}]
-		pass
+	'''
 
-class ColorDB(objectify.ObjectifiedElement):
+'''
+class ColorDB:
 	def lookupRGB(self, r, g, b):
 		return self.lookupHSL(*colorsys.rgb_to_hsv(r,g,b))
 	def lookupHSL(self, h, s, l):
@@ -24,11 +30,8 @@ class ColorDB(objectify.ObjectifiedElement):
 		#//FaveColor[label[starts-with(text(),{})]]
 		#//FaveColor[label[text()={}]]
 		pass
-	def byEffects(self, fx):
-		#//Ingredients[effect[@fxid={}]]
-		pass
 
-class IngredientsDB(objectify.ObjectifiedElement):
+class IngredientsDB:
 	def byLabel(self, label, regex=False):
 		#//Ingredient[label[starts-with(text(),{})]]
 		#//Ingredient[label[text()={}]]
@@ -37,68 +40,94 @@ class IngredientsDB(objectify.ObjectifiedElement):
 		#//Ingredient[category[starts-with(text(),{})]]
 		#//Ingredient[category[text()={}]]
 		pass
-	def byEffects(self, fx):
-		#//Ingredients[effect[@fxid={}]]
-		pass
+'''
+
+class Step(objectify.ObjectifiedElement):
+	def inRecipes(self):
+		return self.xpath('//Recipe[step[@stid={}]]'.format(self.attrib['stid']))
+	def usedIngredient(self):
+		if not hasattr(self,'ingredient'):
+			return []
+		return self.xpath('//Ingredient[@igid={}]'.format(self.ingredient.attrib['igid']))
+	def usedColor(self):
+		#:I still doesn't work like expected
+		if not hasattr(self,'color'):
+			return []
+		c="hue={} and saturation={} and luminosity={}"\
+			.format(self.color.hue,self.color.saturation,self.color.luminosity)
+		return self.xpath('//FaveColor[color[{}]]'.format(c))
+
+class Effect(objectify.ObjectifiedElement):
+	def colorsWithThis(self):
+		colors=self.xpath('//FaveColor')
+		#we need to do this because we can't autostore
+		#the effects for things that have noCalculate!
+		return [c for c in colors if self in c.effects]
+	def ingredientsWithThis(self):
+		return self.xpath('//Ingredient[effect[@fxid=./@fxid]]')
 
 class Ingredient(objectify.ObjectifiedElement):
-	@property
 	def effects(self):
 		# <- selects effects for an ingredient
-		return self.xpath('//Effect[@fxid=//Ingredient[@igid=./@igid]/effect/@fxid]')
+		return self.xpath('//Effect[@fxid=//Ingredient[@igid={}]/effect/@fxid]'.format(self.attrib['igid']))
+	def inSteps(self):
+		# selects steps the ingredient is in
+		return self.xpath('//Step[ingredient[@igid=./@igid]]')
 
-class EnergyColor(objectify.ObjectifiedElement):
-	#'//Step[uses[color=./color]]' <- selects steps the color is in
-	#'//Step[uses[ingredient[@igid=./@igid]]]' <- selects steps the ingredient is in
-	@property
-	def huefxrange(self):
+class FaveColor(objectify.ObjectifiedElement):
+	def huefxrng(self):
 		return self.xpath('//Effect[@fxid = //HueEffect/@fxid]')
-	@property
-	def lumfxrange(self):
+	def lumfxrng(self):
 		return self.xpath('//Effect[@fxid = //LuminosityEffect/@fxid]')
-	@property
 	def huefxpositive(self):
 		#Whether the effect of the energy due to its hue is beneficial
 		if self.saturation >= 1E-3:
 			return self.luminosity>=0.5
-	@property
 	def purity(self):
 		#How much of the energy's effect is due to the hue
 		return self.saturation if self.saturation >= 1E-3 else 1.0
-	@property
 	def luminosityfx(self):
 		#Energy's effect due to its luminosity
-		if self.saturation < 1:
-			idx=int(len(self.lumfxrng)*self.luminosity)
-			fx2=self.lumfxrng[idx]
+		if self.color.saturation < 1:
+			idx=int(len(self.lumfxrng())*self.color.luminosity)-1
+			fx2=[self.lumfxrng()[idx]]
 		else:
-			fx2=None
+			fx2=[]
 		return fx2
-	@property
 	def huefx(self):
 		#Energy's effect due to its hue
-		if self.saturation <= 1E-3:
-			return None
-		idx=len(self.huefxrng)*self.hue
+		if self.color.saturation <= 1E-3:
+			return []
+		idx=len(self.huefxrng())*self.color.hue
 		intifiedidx=int(idx)
 		if idx>intifiedidx:
-			fx=(self.huefxrng[intifiedidx],self.huefxrng[(intifiedidx+1)%len(self.huefxrng)])
+			fx=[self.huefxrng()[intifiedidx],self.huefxrng()[(intifiedidx+1)%len(self.huefxrng())]]
 		else:
-			fx=self.huefxrng[intifiedidx]
+			fx=[self.huefxrng()[intifiedidx]]
 		return fx
-	@property
+	def inSteps(self):
+		#selects steps the color is in
+		c="hue={} and saturation={} and luminosity={}"\
+			.format(self.color.hue,self.color.saturation,self.color.luminosity)
+		return self.xpath('//Step[color[{}]]'.format(c))
+
 	def effects(self):
-		if not self.attrib['noCalculate']:
-			return self.huefx+self.luminosityfx
+		if 'noCalculate' not in self.attrib or not self.attrib['noCalculate']:
+			return self.huefx()+self.luminosityfx()
 		else:
-			return self.xpath('//Effect[@fxid = //FaveColor[color=./color]/effect/@fxid]')
+			c="hue={} and saturation={} and luminosity={}"\
+			.format(self.color.hue,self.color.saturation,self.color.luminosity)
+			return self.xpath('//Effect[@fxid = //FaveColor[color[{}]]/effect/@fxid]'.format(c))
 
 lookup = etree.ElementNamespaceClassLookup(objectify.ObjectifyElementClassLookup())
 parser = etree.XMLParser(remove_blank_text=True)
 parser.set_element_class_lookup(lookup)
 
 namespace = lookup.get_namespace('')
-namespace['Spellbook']=Spellbook
-#namespace['FaveColor']=FaveColor
+namespace['FaveColor']=FaveColor
+namespace['Ingredient']=Ingredient
+namespace['Effect']=Effect
+namespace['Recipe']=Recipe
+namespace['Step']=Step
 
 # ~~~ Shalalalala ~~~
