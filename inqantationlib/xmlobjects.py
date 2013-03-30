@@ -58,11 +58,16 @@ class Step(objectify.ObjectifiedElement):
 		return self.xpath('//FaveColor[color[{}]]'.format(c))
 
 class Effect(objectify.ObjectifiedElement):
-	def colorsWithThis(self):
-		colors=self.xpath('//FaveColor')
-		#we need to do this because we can't autostore
-		#the effects for things that have noCalculate!
-		return [c for c in colors if self in c.effects]
+	def colorsWithThis(self, onlyNoCalc=False):
+		if onlyNoCalc:
+			colors=self.xpath('//FaveColor[@noCalculate="true"'
+						' and effect[@fxid={}]]'.format(self.attrib['fxid']))
+			return colors
+		else:
+			colors=self.xpath('//FaveColor')
+			#we need to do this because we can't autostore
+			#the effects for things that have noCalculate!
+			return [c for c in colors if self in c.effects]
 	def ingredientsWithThis(self):
 		return self.xpath('//Ingredient[effect[@fxid=./@fxid]]')
 
@@ -119,11 +124,45 @@ class FaveColor(objectify.ObjectifiedElement):
 			.format(self.color.hue,self.color.saturation,self.color.luminosity)
 			return self.xpath('//Effect[@fxid = //FaveColor[color[{}]]/effect/@fxid]'.format(c))
 
+class Encyclopedia(objectify.ObjectifiedElement):
+	def remove(self, el):
+		if el.tag == 'Step':
+			#remove all mentions from it from existing recipes
+			for r in el.inRecipes():
+				for s in r.xpath('./step[@stid={}]'.format(el.attrib['stid']):
+					r.remove(s)
+		elif el.tag in ('FaveColor','Ingredient'):
+			#remove all steps that this is mentioned in
+			for s in el.inSteps():
+				self.remove(s)
+		elif el.tag == 'Effect':
+			#remove all mentions of this effect in hue effect
+			for he in el.xpath('//HueEffect[@fxid={}]'.format(el.attrib['fxid'])):
+				self.remove(he)
+
+			#remove all mentions of this effect in luminosity effect
+			for he in el.xpath('//LuminosityEffect[@fxid={}]'.format(el.attrib['fxid'])):
+				self.remove(he)
+
+			#remove all mentions of this effect in colors that aren't calculated
+			for c in el.colorsWithThis(True):
+				for e in c.xpath('./effect[@fxid={}]'.format(el.attrib['fxid'])):
+					c.remove(e)
+
+			#remove all mentions of this effect in ingredients
+			for i in el.ingredientsWithThis():
+				for e in c.xpath('./effect[@fxid={}]'.format(el.attrib['fxid'])):
+					i.remove(e)
+
+		#now that we're done cleaning up dependencies, remove this for good
+		super().remove(el)
+
 lookup = etree.ElementNamespaceClassLookup(objectify.ObjectifyElementClassLookup())
 parser = etree.XMLParser(remove_blank_text=True)
 parser.set_element_class_lookup(lookup)
 
 namespace = lookup.get_namespace('')
+namespace['Encyclopedia']=Encyclopedia
 namespace['FaveColor']=FaveColor
 namespace['Ingredient']=Ingredient
 namespace['Effect']=Effect
