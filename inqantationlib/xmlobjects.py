@@ -129,7 +129,7 @@ class Encyclopedia(objectify.ObjectifiedElement):
 		if el.tag == 'Step':
 			#remove all mentions from it from existing recipes
 			for r in el.inRecipes():
-				for s in r.xpath('./step[@stid={}]'.format(el.attrib['stid']):
+				for s in r.xpath('./step[@stid={}]'.format(el.attrib['stid'])):
 					r.remove(s)
 		elif el.tag in ('FaveColor','Ingredient'):
 			#remove all steps that this is mentioned in
@@ -141,8 +141,8 @@ class Encyclopedia(objectify.ObjectifiedElement):
 				self.remove(he)
 
 			#remove all mentions of this effect in luminosity effect
-			for he in el.xpath('//LuminosityEffect[@fxid={}]'.format(el.attrib['fxid'])):
-				self.remove(he)
+			for le in el.xpath('//LuminosityEffect[@fxid={}]'.format(el.attrib['fxid'])):
+				self.remove(le)
 
 			#remove all mentions of this effect in colors that aren't calculated
 			for c in el.colorsWithThis(True):
@@ -151,7 +151,7 @@ class Encyclopedia(objectify.ObjectifiedElement):
 
 			#remove all mentions of this effect in ingredients
 			for i in el.ingredientsWithThis():
-				for e in c.xpath('./effect[@fxid={}]'.format(el.attrib['fxid'])):
+				for e in i.xpath('./effect[@fxid={}]'.format(el.attrib['fxid'])):
 					i.remove(e)
 
 		#now that we're done cleaning up dependencies, remove this for good
@@ -168,5 +168,7 @@ namespace['Ingredient']=Ingredient
 namespace['Effect']=Effect
 namespace['Recipe']=Recipe
 namespace['Step']=Step
+
+#note: etree.tostring(el, pretty_print=True, encoding='unicode')
 
 # ~~~ Shalalalala ~~~
