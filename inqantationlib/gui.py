@@ -4,14 +4,23 @@ import os
 import datetime
 
 from . import APPNAME,APPVERSION,AUTHOR,DESCRIPTION,YEAR,PAGE,EMAIL
-#from . import core
+from . import xmlobjects, widgets
 from .guiconfig import InQantationConfig
 
 class InQantation(QtGui.QMainWindow):
-	def __init__(self, *args, **kwargs):
+	def __init__(self, spellbook):
 		super().__init__()
 		self.setWindowTitle(APPNAME)
 		self.undoStack=QtGui.QUndoStack(self)
+
+		self.tree=xmlobjects.objectify.parse(spellbook,
+											parser=xmlobjects.parser)
+
+		fcmodel=widgets.FaveColorModel(self.tree)
+		imodel=widgets.IngredientModel(self.tree)
+		smodel=widgets.StepModel(self.tree)
+		rmodel=widgets.RecipeModel(self.tree)
+		fxmodel=widgets.EffectModel(self.tree)
 
 		exitAction = QtGui.QAction(QtGui.QIcon.fromTheme('application-exit'), 'Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
@@ -43,6 +52,7 @@ class InQantation(QtGui.QMainWindow):
 		pane=QtGui.QWidget(self)
 		panel = QtGui.QGridLayout(pane)
 		l = QtGui.QListView(self)
+		l.setModel(fxmodel)
 		newb=QtGui.QPushButton('New')
 		newd=QtGui.QPushButton('Delete')
 		fxsc=QtGui.QPushButton('Colors w/this')
@@ -57,6 +67,7 @@ class InQantation(QtGui.QMainWindow):
 		pane=QtGui.QWidget(self)
 		panel = QtGui.QGridLayout(pane)
 		l = QtGui.QListView(self)
+		l.setModel(fcmodel)
 		l2 = QtGui.QTreeWidget(self)
 		l3 = QtGui.QTreeWidget(self)
 		le = QtGui.QLineEdit(self)
@@ -72,9 +83,15 @@ class InQantation(QtGui.QMainWindow):
 		panel.addWidget(l3,3,3,1,3)
 		tabs.addTab(pane, "Energy Colors")
 
-		tabs.addTab(QtGui.QListView(self), "Ingredients")
-		tabs.addTab(QtGui.QListView(self), "Steps")
-		tabs.addTab(QtGui.QListView(self), "Recipes")
+		l = QtGui.QListView(self)
+		l.setModel(imodel)
+		tabs.addTab(l, "Ingredients")
+		l = QtGui.QListView(self)
+		l.setModel(smodel)
+		tabs.addTab(l, "Steps")
+		l = QtGui.QListView(self)
+		l.setModel(rmodel)
+		tabs.addTab(l, "Recipes")
 		self.setCentralWidget(tabs)
 
 	def about(self):
@@ -135,9 +152,12 @@ def main():
 	app.setWindowIcon(QtGui.QIcon.fromTheme(APPNAME.lower()))
 	app.setApplicationName(APPNAME)
 	app.setApplicationVersion(APPVERSION)
-	qtrcfg = InQantationConfig ()
+	qtrcfg = InQantationConfig()
 
-	window = InQantation ()
+	if len(os.sys.argv[1:]) < 1 or not os.path.exists(os.sys.argv[1]):
+		print("There's no spellbook to edit!", file=os.sys.stderr)
+		os.sys.exit(1)
+	window = InQantation (os.sys.argv[1])
 	window.show()
 	os.sys.exit(app.exec_())
 
