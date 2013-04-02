@@ -1,67 +1,67 @@
 from lxml import etree,objectify
 
+### Constants ###
+#### XPath expressions for sections of book ###
+ALLCOLS=etree.XPath('//FaveColor')
+ALLINGS=etree.XPath('//Ingredient')
+ALLREPS=etree.XPath('//Recipe')
+ALLSTPS=etree.XPath('//Step')
+ALLFXS=etree.XPath('//Effect')
+
+#### Ones used by multiple classes ####
+COLSEARCH=etree.XPath('//FaveColor[color[hue=$h and saturation=$s and value=$v]]')
+
+#note on how to swap positions in parent:
+'''
+el.getparent().remove(el)
+i=el2.getparent().index(el2)
+if after: i+=1
+el2.getparent().insert(i, el)
+'''
+
+### Classes ###
 
 class Recipe(objectify.ObjectifiedElement):
+	UCOLS=etree.XPath('//Step[@stid=//Recipe[@rpid=$r]/step/@stid and color]')
+	UINGS=etree.XPath('//Ingredient[@igid=//Step[@stid='
+					'//Recipe[@rpid=$r]/step/@stid]/ingredient/@igid]')
 	def usedColors(self):
 		#//FaveColor[color=./color] <- for each step
 		r=[]
-		for i in self.xpath('//Step[@stid=//Recipe[@rpid={}]/step/@stid and color]'.format(self.attrib['rpid'])):
+		for i in self.UCOLS(self,r=self.attrib['rpid']):
 			r.append(i.usedColor()[0])
 		#return self.xpath('//FaveColor[color=//Step[contains(@stid,./step/@stid)]/color]')
 		return r
 	def usedIngredients(self):
 		#//Ingredient[@igid=//Step[@stid=./@stid]/ingredient/@igid] <- for each ingredient
-		return self.xpath(('//Ingredient[@igid=//Step[@stid='
-						'//Recipe[@rpid={}]/step/@stid]'
-						'/ingredient/@igid]').format(self.attrib['rpid']))
+		return self.UINGS(self,r=self.attrib['rpid'])
 	'''
 	def effectSummary(self):
 		#self.usedIngredients+self.usedColors
 		pass
 	'''
 
-'''
-class ColorDB:
-	def lookupRGB(self, r, g, b):
-		return self.lookupHSL(*colorsys.rgb_to_hsv(r,g,b))
-	def lookupHSL(self, h, s, l):
-		pass
-	def byLabel(self, label, regex=False):
-		#//FaveColor[label[starts-with(text(),{})]]
-		#//FaveColor[label[text()={}]]
-		pass
-
-class IngredientsDB:
-	def byLabel(self, label, regex=False):
-		#//Ingredient[label[starts-with(text(),{})]]
-		#//Ingredient[label[text()={}]]
-		pass
-	def byCategory(self, category, exact=False):
-		#//Ingredient[category[starts-with(text(),{})]]
-		#//Ingredient[category[text()={}]]
-		pass
-'''
-
 class Step(objectify.ObjectifiedElement):
+	INREPS=etree.XPath('//Recipe[step[@stid=$s]]')
+	HASINGS=etree.XPath('//Ingredient[@igid=$i]')
 	def inRecipes(self):
-		return self.xpath('//Recipe[step[@stid={}]]'.format(self.attrib['stid']))
+		return self.INREPS(self,s=self.attrib['stid'])
 	def usedIngredient(self):
 		if not hasattr(self,'ingredient'):
 			return []
-		return self.xpath('//Ingredient[@igid={}]'.format(self.ingredient.attrib['igid']))
+		return self.HASINGS(self,i=self.ingredient.attrib['igid'])
 	def usedColor(self):
-		#:I still doesn't work like expected
 		if not hasattr(self,'color'):
 			return []
-		c="hue={} and saturation={} and luminosity={}"\
-			.format(self.color.hue,self.color.saturation,self.color.luminosity)
-		return self.xpath('//FaveColor[color[{}]]'.format(c))
+		return COLSEARCH(self, h=self.color.hue,
+						s=self.color.saturation, v=self.color.value)
 
 class Effect(objectify.ObjectifiedElement):
+	INCOLSNC=etree.XPath('//FaveColor[@noCalculate="true" and effect[@fxid=$f]]')
+	ININGS=etree.XPath('//Ingredient[effect[@fxid=./@fxid]]')
 	def colorsWithThis(self, onlyNoCalc=False):
 		if onlyNoCalc:
-			colors=self.xpath('//FaveColor[@noCalculate="true"'
-						' and effect[@fxid={}]]'.format(self.attrib['fxid']))
+			colors=self.INCOLSNC(self,f=self.attrib['fxid'])
 			return colors
 		else:
 			colors=self.xpath('//FaveColor')
@@ -69,32 +69,39 @@ class Effect(objectify.ObjectifiedElement):
 			#the effects for things that have noCalculate!
 			return [c for c in colors if self in c.effects]
 	def ingredientsWithThis(self):
-		return self.xpath('//Ingredient[effect[@fxid=./@fxid]]')
+		return self.ININGS(self)
 
 class Ingredient(objectify.ObjectifiedElement):
+	IHASFX=etree.XPath('//Effect[@fxid=//Ingredient[@igid=$i]/effect/@fxid]')
+	IINSTEPS=etree.XPath('//Step[ingredient[@igid=./@igid]]')
 	def effects(self):
 		# <- selects effects for an ingredient
-		return self.xpath('//Effect[@fxid=//Ingredient[@igid={}]/effect/@fxid]'.format(self.attrib['igid']))
+		return self.IHASFX(self,i=self.attrib['igid'])
 	def inSteps(self):
 		# selects steps the ingredient is in
-		return self.xpath('//Step[ingredient[@igid=./@igid]]')
+		return self.IINSTEPS(self)
 
 class FaveColor(objectify.ObjectifiedElement):
+	HFXRNG=etree.XPath('//Effect[@fxid = //HueEffect/@fxid]')
+	LFXRNG=etree.XPath('//Effect[@fxid = //ValueEffect/@fxid]')
+	CINSTEPS=etree.XPath('//Step[color[hue=$h and saturation=$s and value=$v]]')
+	CNCHASFX=etree.XPath('//Effect[@fxid = //FaveColor[color[hue=$h and'
+						' saturation=$s and value=$v]]/effect/@fxid]')
 	def huefxrng(self):
-		return self.xpath('//Effect[@fxid = //HueEffect/@fxid]')
+		return self.HFXRNG(self)
 	def lumfxrng(self):
-		return self.xpath('//Effect[@fxid = //LuminosityEffect/@fxid]')
+		return self.LFXRNG(self)
 	def huefxpositive(self):
 		#Whether the effect of the energy due to its hue is beneficial
 		if self.saturation >= 1E-3:
-			return self.luminosity>=0.5
+			return self.value>=0.5
 	def purity(self):
 		#How much of the energy's effect is due to the hue
 		return self.saturation if self.saturation >= 1E-3 else 1.0
-	def luminosityfx(self):
-		#Energy's effect due to its luminosity
+	def valuefx(self):
+		#Energy's effect due to its value
 		if self.color.saturation < 1:
-			idx=int(len(self.lumfxrng())*self.color.luminosity)-1
+			idx=int(len(self.lumfxrng())*self.color.value)-1
 			fx2=[self.lumfxrng()[idx]]
 		else:
 			fx2=[]
@@ -112,19 +119,33 @@ class FaveColor(objectify.ObjectifiedElement):
 		return fx
 	def inSteps(self):
 		#selects steps the color is in
-		c="hue={} and saturation={} and luminosity={}"\
-			.format(self.color.hue,self.color.saturation,self.color.luminosity)
-		return self.xpath('//Step[color[{}]]'.format(c))
+		return self.CINSTEPS(self,h=self.color.hue,
+						s=self.color.saturation,v=self.color.value)
 
 	def effects(self):
-		if 'noCalculate' not in self.attrib or not self.attrib['noCalculate']:
-			return self.huefx()+self.luminosityfx()
+		if 'noCalculate' not in self.attrib or not (self.attrib['noCalculate'] in ('1','true')):
+			return self.huefx()+self.valuefx()
 		else:
-			c="hue={} and saturation={} and luminosity={}"\
-			.format(self.color.hue,self.color.saturation,self.color.luminosity)
-			return self.xpath('//Effect[@fxid = //FaveColor[color[{}]]/effect/@fxid]'.format(c))
+			return self.CNCHASFX(self,h=self.color.hue,
+						s=self.color.saturation,v=self.color.value)
 
 class Encyclopedia(objectify.ObjectifiedElement):
+	def byLabel(self, label, regex=False):
+		#//Ingredient[label[starts-with(text(),{})]]
+		#//Ingredient[label[text()={}]]
+		pass
+	def byCategory(self, category, exact=False):
+		#//Ingredient[category[starts-with(text(),{})]]
+		#//Ingredient[category[text()={}]]
+		pass
+	def lookupRGB(self, r, g, b):
+		return self.lookupHSL(*colorsys.rgb_to_hsv(r,g,b))
+	def lookupHSL(self, h, s, v):
+		return COLSEARCH(self,h=h,s=s,v=v)
+	def byLabel(self, label, regex=False):
+		#//FaveColor[label[starts-with(text(),{})]]
+		#//FaveColor[label[text()={}]]
+		pass
 	def remove(self, el):
 		if el.tag == 'Step':
 			#remove all mentions from it from existing recipes
@@ -140,8 +161,8 @@ class Encyclopedia(objectify.ObjectifiedElement):
 			for he in el.xpath('//HueEffect[@fxid={}]'.format(el.attrib['fxid'])):
 				self.remove(he)
 
-			#remove all mentions of this effect in luminosity effect
-			for le in el.xpath('//LuminosityEffect[@fxid={}]'.format(el.attrib['fxid'])):
+			#remove all mentions of this effect in value effect
+			for le in el.xpath('//ValueEffect[@fxid={}]'.format(el.attrib['fxid'])):
 				self.remove(le)
 
 			#remove all mentions of this effect in colors that aren't calculated

@@ -4,7 +4,7 @@ import os
 import datetime
 
 from . import APPNAME,APPVERSION,AUTHOR,DESCRIPTION,YEAR,PAGE,EMAIL
-from . import xmlobjects, widgets
+from . import xmlobjects, models, widgets
 from .guiconfig import InQantationConfig
 
 class InQantation(QtGui.QMainWindow):
@@ -16,11 +16,11 @@ class InQantation(QtGui.QMainWindow):
 		self.tree=xmlobjects.objectify.parse(spellbook,
 											parser=xmlobjects.parser)
 
-		fcmodel=widgets.FaveColorModel(self.tree)
-		imodel=widgets.IngredientModel(self.tree)
-		smodel=widgets.StepModel(self.tree)
-		rmodel=widgets.RecipeModel(self.tree)
-		fxmodel=widgets.EffectModel(self.tree)
+		fcmodel=models.FaveColorModel(self.tree)
+		imodel=models.IngredientModel(self.tree)
+		smodel=models.StepModel(self.tree)
+		rmodel=models.RecipeModel(self.tree)
+		fxmodel=models.EffectModel(self.tree)
 
 		exitAction = QtGui.QAction(QtGui.QIcon.fromTheme('application-exit'), 'Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
