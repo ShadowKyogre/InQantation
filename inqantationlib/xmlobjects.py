@@ -1,4 +1,5 @@
 from lxml import etree,objectify
+from copy import deepcopy
 
 ### Constants ###
 #### XPath expressions for sections of book ###
@@ -11,6 +12,12 @@ ALLFXS=etree.XPath('//Effect')
 #### Ones used by multiple classes ####
 COLSEARCH=etree.XPath('//FaveColor[color[hue=$h and saturation=$s and value=$v]]')
 
+#### Useful for generating new element IDs ####
+#http://stackoverflow.com/questions/3786443/xpath-to-get-the-element-with-the-highest-id
+LASTFXID=etree.XPath('//Effect[not(../Effect/@fxid>@fxid)]/@fxid')
+LASTRPID=etree.XPath('//Recipe[not(../Recipe/@rpid>@rpid)]/@rpid')
+LASTSTID=etree.XPath('//Step[not(../Step/@stid>@stid)]/@stid')
+LASTIGID=etree.XPath('//Ingredient[not(../Ingredient/@igid>@igid)]/@igid')
 #note on how to swap positions in parent:
 '''
 el.getparent().remove(el)
@@ -25,6 +32,7 @@ class Recipe(objectify.ObjectifiedElement):
 	UCOLS=etree.XPath('//Step[@stid=//Recipe[@rpid=$r]/step/@stid and color]')
 	UINGS=etree.XPath('//Ingredient[@igid=//Step[@stid='
 					'//Recipe[@rpid=$r]/step/@stid]/ingredient/@igid]')
+	STEPREFS=etree.XPath('./step')
 	def usedColors(self):
 		#//FaveColor[color=./color] <- for each step
 		r=[]
@@ -122,27 +130,79 @@ class FaveColor(objectify.ObjectifiedElement):
 		return self.CINSTEPS(self,h=self.color.hue,
 						s=self.color.saturation,v=self.color.value)
 
-	def effects(self):
-		if 'noCalculate' not in self.attrib or not (self.attrib['noCalculate'] in ('1','true')):
+	def effects(self, nocalc=False):
+		if not nocalc or self.attrib.get('noCalculate') in ('1','true'):
 			return self.huefx()+self.valuefx()
 		else:
 			return self.CNCHASFX(self,h=self.color.hue,
 						s=self.color.saturation,v=self.color.value)
 
 class Encyclopedia(objectify.ObjectifiedElement):
-	def byLabel(self, label, regex=False):
+	def newEffect(self):
+		id=str(int(LASTFXID(self)[0])+1)
+		return Effect(effectkw='', attrib={'fxid':id})
+	def newStep(self, uses=None):
+		id=str(int(LASTSTID(self)[0])+1)
+		s = Step(details='', attrib={'stid':id})
+		if uses is not None:
+			if uses.tag == 'FaveColor':
+				c=deepcopy(uses.color)
+				s.append(c)
+			elif uses.tag == 'Ingredient':
+				i=parser.makeelement('ingredient')
+				i.attrib['igid']=deepcopy(uses.attrib['igid'])
+				s.append(i)
+		return s
+	def newRecipe(self, steps=[]):
+		#we expect a list of Steps here if wanted
+		id=str(int(LASTRPID(self)[0])+1)
+		r=Recipe(label='', attrib={'rpid':id})
+		for step in steps:
+			s=parser.makeelement('step')
+			if isinstance(step,Step):
+				s.attrib['stid']=deepcopy(step.attrib['stid'])
+			elif isinstance(step,int) or isinstance(step,str):
+				s.attrib['stid']=step
+			else:
+				raise ValueError("The list provided contains something that isn't an int, str, or Step!")
+			r.append(s)
+		return r
+	def newIngredient(self, effects=[], categories=[]):
+		#we expect a list of Effects or fxids
+		#or a list of strings or categories elements
+		id=str(int(LASTIGID(self)[0])+1)
+		i=Ingredient(label='')
+		for category in categories:
+			if isinstance(category, str):
+				cat=parser.makeelement('category')
+				cat.text=category
+			elif isinstance(category, objectify.ObjectifiedElement):
+				cat=category
+			else:
+				raise ValueError("The list provided contains something that isn't a str or category!")
+			i.append(cat)
+		for effect in effects:
+			fx=parser.makeelement('effect')
+			if isinstance(effect, int):
+				fx.attrib['fxid']=effect
+			elif isinstance(effect, Effect):
+				fx.attrib['fxid']=deepcopy(effect.attrib['fxid'])
+			else:
+				raise ValueError("The list provided contains something that isn't an int or Effect!")
+		
+	def ingByLabel(self, label, regex=False):
 		#//Ingredient[label[starts-with(text(),{})]]
 		#//Ingredient[label[text()={}]]
 		pass
-	def byCategory(self, category, exact=False):
+	def ingByCategory(self, category, exact=False):
 		#//Ingredient[category[starts-with(text(),{})]]
 		#//Ingredient[category[text()={}]]
 		pass
-	def lookupRGB(self, r, g, b):
+	def colorByRGB(self, r, g, b):
 		return self.lookupHSL(*colorsys.rgb_to_hsv(r,g,b))
-	def lookupHSL(self, h, s, v):
+	def colorByHSL(self, h, s, v):
 		return COLSEARCH(self,h=h,s=s,v=v)
-	def byLabel(self, label, regex=False):
+	def colorByLabel(self, label, regex=False):
 		#//FaveColor[label[starts-with(text(),{})]]
 		#//FaveColor[label[text()={}]]
 		pass

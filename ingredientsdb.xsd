@@ -12,7 +12,7 @@
 				<xs:element maxOccurs="unbounded" name="FaveColor" type="FaveColor" minOccurs="0" />
 				<xs:element maxOccurs="unbounded" name="Effect" type="Effect" />
 				<xs:element maxOccurs="unbounded" name="HueEffect" type="HueEffect" />
-				<xs:element maxOccurs="unbounded" name="LuminosityEffect" type="LuminosityEffect" />
+				<xs:element maxOccurs="unbounded" name="ValueEffect" type="ValueEffect" />
 				<xs:element maxOccurs="unbounded" name="Recipe" type="Recipe" minOccurs="0" />
 				<xs:element maxOccurs="unbounded" name="Step" type="Step" minOccurs="0" />
 			</xs:sequence>
@@ -31,7 +31,7 @@
 			<xs:selector xpath="FaveColor/color" />
 			<xs:field xpath="hue" />
 			<xs:field xpath="saturation" />
-			<xs:field xpath="luminosity" />
+			<xs:field xpath="value" />
 		</xs:unique>
 
 		<!-- Recipe Component Key Reference Declarations -->
@@ -44,7 +44,7 @@
 			<xs:field xpath="@fxid"></xs:field>
 		</xs:keyref>
 		<xs:keyref refer="EffectID" name="EffectIDRef-lfx">
-			<xs:selector xpath="LuminosityEffect"></xs:selector>
+			<xs:selector xpath="ValueEffect"></xs:selector>
 			<xs:field xpath="@fxid"></xs:field>
 		</xs:keyref>
 		<xs:keyref refer="EffectID" name="EffectIDRef-fcfx">
@@ -73,7 +73,7 @@
 			<xs:selector xpath="Step/color"></xs:selector>
 			<xs:field xpath="hue" />
 			<xs:field xpath="saturation" />
-			<xs:field xpath="luminosity" />
+			<xs:field xpath="value" />
 		</xs:keyref>
 		<xs:keyref refer="IngredientID" name="IngredientIDRef">
 			<xs:selector xpath="Step/ingredient"></xs:selector>
@@ -92,7 +92,7 @@
 		<xs:sequence>
 			<xs:element name="hue" type="percent" />
 			<xs:element name="saturation" type="percent" />
-			<xs:element name="luminosity" type="percent" />
+			<xs:element name="value" type="percent" />
 		</xs:sequence>
 	</xs:complexType>
 
@@ -101,7 +101,7 @@
 		<xs:sequence>
 				<xs:element name="label" type="xs:string" />
 				<xs:element name="category" type="xs:string" minOccurs="0"/>
-				<xs:element name="effect" maxOccurs="unbounded">
+				<xs:element name="effect" minOccurs="0" maxOccurs="unbounded">
 					<xs:complexType>
 						 <xs:attribute name="fxid" type="xs:nonNegativeInteger" />
 					</xs:complexType>
@@ -131,7 +131,7 @@
 		<xs:attribute name="order" type="xs:nonNegativeInteger" />
 		<xs:attribute name="fxid" type="xs:nonNegativeInteger" />
 	</xs:complexType>
-	<xs:complexType name="LuminosityEffect">
+	<xs:complexType name="ValueEffect">
 		<xs:attribute name="order" type="xs:nonNegativeInteger" />
 		<xs:attribute name="fxid" type="xs:nonNegativeInteger" />
 	</xs:complexType>

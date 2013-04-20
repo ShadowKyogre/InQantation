@@ -41,10 +41,11 @@ class AbstractXPathModel(QtCore.QAbstractListModel):
 			return self._decorationRole(el)
 		elif role == QtCore.Qt.UserRole:
 			return el
-	def _displayRole(self, el):
-		return el.tag
-	def _decorationRole(self, el):
-		pass
+		elif role == QtCore.Qt.CheckStateRole:
+			return self._checkRole(el)
+	def _displayRole(self, el): return el.tag
+	def _decorationRole(self, el): pass
+	def _checkRole(self, el): pass
 	def rowCount(self, index):
 		return len(self._allElements())
 
@@ -108,45 +109,27 @@ class EffectModel(AbstractXPathModel):
 	def _displayRole(self, el):
 		return el.effectkw.text
 
-'''
-When the user is editing, there's some stuff to edit the things for the color 
-or ingredient and a button that says "Effects...". Clicking that button would 
-raise a dialog that shows the available affects and whether the current 
-component you're editing uses these. One can then check or uncheck certain 
-effects and click OK to confirm the changes.
-'''
-
-def main():
-	import os
-	app = QtGui.QApplication(os.sys.argv)
-	blah=QtGui.QWidget()
-	l=QtGui.QListView()
-	l2=QtGui.QListView()
-	l3=QtGui.QListView()
-	l4=QtGui.QListView()
-	l5=QtGui.QListView()
-	layout=QtGui.QHBoxLayout(blah)
-	layout.addWidget(l)
-	layout.addWidget(l2)
-	layout.addWidget(l3)
-	layout.addWidget(l4)
-	layout.addWidget(l5)
-	
-	tree=xmlobjects.objectify.parse('satanism.xml',parser=xmlobjects.parser)
-	model=FaveColorModel(tree)
-	model2=IngredientModel(tree)
-	model3=StepModel(tree)
-	model4=RecipeModel(tree)
-	model5=EffectModel(tree)
-	l.setModel(model)
-	l2.setModel(model2)
-	l3.setModel(model3)
-	l4.setModel(model4)
-	l5.setModel(model5)
-	#blah.setItemDelegate(ListyDelegate(model))
-	blah.show()
-	os.sys.exit(app.exec_())
-
-if __name__ == "__main__":
-	main()
-
+class EffectTaggerModel(EffectModel):
+	def __init__(self, taggable):
+		super().__init__()
+		self.taggable=taggable
+	def _decorationRole(self, el):
+		pass
+	def _displayRole(self, el):
+		return el.effectkw.text
+	def flags (self, index):
+		# ?
+		return self.flags()|self.isCheckable()
+	def setData(self, index, role):
+		if role == QtCore.Qt.CheckStateRole:
+			#we're going to start taggin!
+			#code that does tagging
+			#emit a signal that we've finished tagging
+			pass
+	def _checkRole(self, el):
+		if self.taggable.tag == 'FaveColor':
+			return el in self.taggable.effects(nocalc=True)
+		else:
+			return el in self.taggable.effects()
+		
+		

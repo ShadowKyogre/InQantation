@@ -14,7 +14,7 @@
 		<color>
 			<hue>0.602</hue>
 			<saturation>1</saturation>
-			<luminosity>1</luminosity>
+			<value>1</value>
 		</color>
 		<label>Daemonic Blue</label>
 		<effect fxid="4" />
@@ -24,7 +24,7 @@
 		<color>
 			<hue>0</hue>
 			<saturation>1</saturation>
-			<luminosity>1</luminosity>
+			<value>1</value>
 		</color>
 		<label>Red</label>
 	</FaveColor>
@@ -32,7 +32,7 @@
 		<color>
 			<hue>0</hue>
 			<saturation>0</saturation>
-			<luminosity>1</luminosity>
+			<value>1</value>
 		</color>
 		<label>White</label>
 	</FaveColor>
@@ -40,7 +40,7 @@
 		<color>
 			<hue>0.122</hue>
 			<saturation>0</saturation>
-			<luminosity>1</luminosity>
+			<value>1</value>
 		</color>
 		<label>White Gold</label>
 		<effect fxid="3" />
@@ -50,7 +50,7 @@
 		<color>
 			<hue>0</hue>
 			<saturation>0</saturation>
-			<luminosity>0.5</luminosity>
+			<value>0.5</value>
 		</color>
 		<label>Gray</label>
 	</FaveColor>
@@ -81,15 +81,15 @@
 	<Effect fxid="8">
 		<effectkw>protection</effectkw>
 	</Effect>
-	<HueEffect order="0" fxid="0" />
-	<HueEffect order="1" fxid="1" />
-	<HueEffect order="2" fxid="2" />
-	<HueEffect order="3" fxid="3" />
-	<HueEffect order="4" fxid="4" />
-	<HueEffect order="5" fxid="5" />
-	<LuminosityEffect order="0" fxid="7" />
-	<LuminosityEffect order="1" fxid="6" />
-	<LuminosityEffect order="2" fxid="8" />
+	<HueEffect fxid="0" />
+	<HueEffect fxid="1" />
+	<HueEffect fxid="2" />
+	<HueEffect fxid="3" />
+	<HueEffect fxid="4" />
+	<HueEffect fxid="5" />
+	<ValueEffect fxid="7" />
+	<ValueEffect fxid="6" />
+	<ValueEffect fxid="8" />
 	<Recipe rpid="0">
 		<label>Blah</label>
 		<step stid="0" />
@@ -104,7 +104,7 @@
 		<color>
 			<hue>0.602</hue>
 			<saturation>1</saturation>
-			<luminosity>1</luminosity>
+			<value>1</value>
 		</color>
 	</Step>
 	<Step stid="1">
