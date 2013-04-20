@@ -63,8 +63,8 @@ class install(_install):
 					os.chmod(f, S_IMODE(at[ST_MODE]))
 
 data_files = [('share/applications',['InQantation.desktop']),
-			  ('share/pixmaps', ['InQantation.png']),
-			  ]
+		('share/pixmaps', ['InQantation.png']),
+		]
 data_files.extend(globby_themes())
 
 setup(
