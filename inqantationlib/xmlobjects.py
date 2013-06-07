@@ -140,7 +140,7 @@ class FaveColor(objectify.ObjectifiedElement):
 class Encyclopedia(objectify.ObjectifiedElement):
 	def newEffect(self):
 		id=str(int(LASTFXID(self)[0])+1)
-		return Effect(effectkw='', attrib={'fxid':id})
+		return Effect(etree.Element('effectkw'), attrib={'fxid':id})
 	def newStep(self, uses=None):
 		id=str(int(LASTSTID(self)[0])+1)
 		s = Step(details='', attrib={'stid':id})

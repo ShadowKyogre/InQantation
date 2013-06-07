@@ -46,7 +46,7 @@ class AbstractXPathModel(QtCore.QAbstractListModel):
 	def _displayRole(self, el): return el.tag
 	def _decorationRole(self, el): pass
 	def _checkRole(self, el): pass
-	def rowCount(self, index):
+	def rowCount(self, index=QtCore.QModelIndex()):
 		return len(self._allElements())
 
 class FaveColorModel(AbstractXPathModel):
@@ -108,6 +108,66 @@ class EffectModel(AbstractXPathModel):
 		pass
 	def _displayRole(self, el):
 		return el.effectkw.text
+	def insertRow(self, row, parent=QtCore.QModelIndex()):
+		return self.insertRows(row, 1, parent=parent)
+	def insertRows(self, row, count, parent=QtCore.QModelIndex()):
+		self.beginInsertRows(parent, row, row+count)
+		new_node = self._tree.getroot().newEffect()
+		if row == self.rowCount():
+			start_here = self.data(self.index(self.rowCount()-1,0), QtCore.Qt.UserRole)
+			start_here.addnext(new_node)
+		elif row == 0:
+			start_here = self.data(self.index(0,0), QtCore.Qt.UserRole)
+			start_here.addprevious(new_node)
+		else:
+			start_here = self.data(self.index(row,0), QtCore.Qt.UserRole)
+			start_here.addprevious(new_node)
+		for x in range(count-1):
+			new_node2 = self.tree.getroot().newEffect()
+			new_node.addnext(new_node2)
+			new_node=new_node2
+		
+		"""
+		if row == 0:
+			pass
+		elif row == self.rowCount(parent):
+			pass
+		elif not parent.child(0,0).isValid(): # this will always be the case...
+			pass
+		else: #we've got children and we need to insert $count rows before the $row row
+			pass
+		"""
+		
+		self.endInsertRows()
+		return True
+	def removeRow(self, row, parent=QtCore.QModelIndex()):
+		return self.removeRows(row, 1, parent=parent)
+	def removeRows(self, row, count, parent=QtCore.QModelIndex()):
+		self.beginRemoveRows(parent, row, row+count)
+		if row < 0 or row == self.rowCount() or count >= self.rowCount():
+			self.endRemoveRows()
+			return False
+		else:
+			print(row)
+			start_here = self.data(self.index(row,0), QtCore.Qt.UserRole)
+			stop = 0
+			for x in start_here.itersiblings(tag=start_here.tag):
+				if stop == count: break
+				self._tree.remove(x)
+				stop+=1
+		
+		"""
+		if row == 0:
+			pass
+		elif row == self.rowCount(parent):
+			pass
+		elif not parent.child(0,0).isValid():
+			pass
+		else: #we've got children and we need to remove $count rows starting at the $row row
+			pass
+		"""
+		self.endRemoveRows()
+		return True
 
 class EffectTaggerModel(EffectModel):
 	def __init__(self, taggable):
