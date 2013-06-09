@@ -35,7 +35,7 @@ class AbstractXPathModel(QtCore.QAbstractListModel):
 		if not index.isValid():
 			return None
 		el=self._allElements()[index.row()]
-		if role == QtCore.Qt.DisplayRole:
+		if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
 			return self._displayRole(el)
 		elif role == QtCore.Qt.DecorationRole:
 			return self._decorationRole(el)
@@ -108,10 +108,19 @@ class EffectModel(AbstractXPathModel):
 		pass
 	def _displayRole(self, el):
 		return el.effectkw.text
+	def flags(self, idx):
+		return super().flags(idx)|QtCore.Qt.ItemIsEditable
+	def setData(self, idx, val, role):
+		if idx.isValid() and role == QtCore.Qt.EditRole:
+			idx.data(QtCore.Qt.UserRole).effectkw = val
+			self.dataChanged.emit(idx, idx)
+			return True
+		else:
+			return False
 	def insertRow(self, row, parent=QtCore.QModelIndex()):
 		return self.insertRows(row, 1, parent=parent)
 	def insertRows(self, row, count, parent=QtCore.QModelIndex()):
-		self.beginInsertRows(parent, row, row+count)
+		self.beginInsertRows(parent, row, row+count-1)
 		new_node = self._tree.getroot().newEffect()
 		if row == self.rowCount():
 			start_here = self.data(self.index(self.rowCount()-1,0), QtCore.Qt.UserRole)
@@ -144,16 +153,16 @@ class EffectModel(AbstractXPathModel):
 		return self.removeRows(row, 1, parent=parent)
 	def removeRows(self, row, count, parent=QtCore.QModelIndex()):
 		self.beginRemoveRows(parent, row, row+count)
-		if row < 0 or row == self.rowCount() or count >= self.rowCount():
+		if row < 0 or row == self.rowCount() or count > self.rowCount():
 			self.endRemoveRows()
 			return False
 		else:
 			print(row)
 			start_here = self.data(self.index(row,0), QtCore.Qt.UserRole)
 			stop = 0
-			for x in start_here.itersiblings(tag=start_here.tag):
+			for x in reversed(list(start_here.itersiblings(tag=start_here.tag))[:count]):
 				if stop == count: break
-				self._tree.remove(x)
+				self._tree.getroot().remove(x)
 				stop+=1
 		
 		"""

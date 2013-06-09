@@ -47,8 +47,17 @@ class InQantation(QtGui.QMainWindow):
 		toolbar.addAction(saveAction)
 		toolbar.addAction(aboutAction)
 
-		tabs = QtGui.QTabWidget(self)
+		self.tabs = QtGui.QTabWidget(self)
+		self.setCentralWidget(self.tabs)
 
+		self.makeEffectsTab()
+		self.makeColorsTab()
+		self.makeIngredientsTab()
+		self.makeStepsTab()
+		self.makeRecipesTab()
+
+	### GUI SETUP ###
+	def makeEffectsTab(self):
 		pane=QtGui.QWidget(self)
 		panel = QtGui.QGridLayout(pane)
 		l = QtGui.QListView(self)
@@ -65,8 +74,9 @@ class InQantation(QtGui.QMainWindow):
 		panel.addWidget(fxsc,0,2)
 		panel.addWidget(fxsi,0,3)
 		panel.addWidget(l,1,0,1,4)
-		tabs.addTab(pane, "Effects")
+		self.tabs.addTab(pane, "Effects")
 
+	def makeColorsTab(self):
 		pane=QtGui.QWidget(self)
 		panel = QtGui.QGridLayout(pane)
 		l = QtGui.QListView(self)
@@ -86,8 +96,9 @@ class InQantation(QtGui.QMainWindow):
 		panel.addWidget(l,3,0,1,6)
 		panel.addWidget(l2,4,0,1,3)
 		panel.addWidget(l3,4,3,1,3)
-		tabs.addTab(pane, "Energy Colors")
+		self.tabs.addTab(pane, "Energy Colors")
 
+	def makeIngredientsTab(self):
 		pane=QtGui.QWidget(self)
 		panel = QtGui.QGridLayout(pane)
 		l = QtGui.QListView(self)
@@ -97,8 +108,9 @@ class InQantation(QtGui.QMainWindow):
 		panel.addWidget(ning,0,0)
 		panel.addWidget(ding,0,1)
 		panel.addWidget(l,1,0,1,2)
-		tabs.addTab(pane, "Ingredients")
+		self.tabs.addTab(pane, "Ingredients")
 
+	def makeStepsTab(self):
 		pane=QtGui.QWidget(self)
 		panel = QtGui.QGridLayout(pane)
 		l = QtGui.QListView(self)
@@ -108,8 +120,9 @@ class InQantation(QtGui.QMainWindow):
 		panel.addWidget(nstep,0,0)
 		panel.addWidget(dstep,0,1)
 		panel.addWidget(l,1,0,1,2)
-		tabs.addTab(pane, "Steps")
+		self.tabs.addTab(pane, "Steps")
 
+	def makeRecipesTab(self):
 		pane=QtGui.QWidget(self)
 		panel = QtGui.QGridLayout(pane)
 		l = QtGui.QListView(self)
@@ -119,12 +132,13 @@ class InQantation(QtGui.QMainWindow):
 		panel.addWidget(nrep,0,0)
 		panel.addWidget(drep,0,1)
 		panel.addWidget(l,1,0,1,2)
-		tabs.addTab(pane, "Recipes")
-		self.setCentralWidget(tabs)
+		self.tabs.addTab(pane, "Recipes")
 
+	### SIGNAL HANDLERS ###
 	def delete(self, model, view):
-		print(view.selectionModel().selectedRows())
-		model.removeRow(view.currentIndex().row())
+		sel = reversed(view.selectionModel().selectedRows())
+		for idx in sel:
+			model.removeRow(idx.row())
 
 	def about(self):
 		QtGui.QMessageBox.about (self, "About {}".format(APPNAME),
