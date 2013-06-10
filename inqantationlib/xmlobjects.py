@@ -191,13 +191,19 @@ class Encyclopedia(objectify.ObjectifiedElement):
 				raise ValueError("The list provided contains something that isn't an int or Effect!")
 		
 	def ingByLabel(self, label, regex=False):
-		#//Ingredient[label[starts-with(text(),{})]]
-		#//Ingredient[label[text()={}]]
-		pass
+		if regex:
+			query = etree.XPath('//Ingredient[label[re:match(text(), $t)]]',
+					namespaces={"re": "http://exslt.org/regular-expressions"})
+		else:
+			query = etree.XPath("//Ingredient[label[starts-with(text(),$t)]]")
+		return query(self, t=label)
+
 	def ingByCategory(self, category, exact=False):
-		#//Ingredient[category[starts-with(text(),{})]]
-		#//Ingredient[category[text()={}]]
-		pass
+		if exact:
+			query = etree.XPath("//Ingredient[category[text()=$t]]")
+		else:
+			query = etree.XPath("//Ingredient[category[starts-with(text(),$t)]]")
+		return query(self, t=category)
 	def colorByRGB(self, r, g, b):
 		return self.lookupHSL(*colorsys.rgb_to_hsv(r,g,b))
 	def colorByHSL(self, h, s, v):
