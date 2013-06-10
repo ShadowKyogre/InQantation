@@ -209,9 +209,13 @@ class Encyclopedia(objectify.ObjectifiedElement):
 	def colorByHSL(self, h, s, v):
 		return COLSEARCH(self,h=h,s=s,v=v)
 	def colorByLabel(self, label, regex=False):
-		#//FaveColor[label[starts-with(text(),{})]]
-		#//FaveColor[label[text()={}]]
-		pass
+		if regex:
+			query = etree.XPath('//FaveColor[label[re:match(text(), $t)]]',
+					namespaces={"re": "http://exslt.org/regular-expressions"})
+		else:
+			query = etree.XPath("//FaveColor[label[starts-with(text(),$t)]]")
+		return query(self, t=label)
+
 	def remove(self, el):
 		if el.tag == 'Step':
 			#remove all mentions from it from existing recipes
